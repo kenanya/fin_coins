@@ -10,7 +10,7 @@ type Payment struct {
 	AccountID   string    `json:"account_id"`
 	Amount      float32   `json:"amount"`
 	ToAccount   string    `json:"to_account"`
-	FromAccount string    `json:"from_account_id"`
+	FromAccount string    `json:"from_account"`
 	Direction   string    `json:"direction"`
 	CreatedAt   time.Time `json:"created_at"`
 }

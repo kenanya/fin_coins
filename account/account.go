@@ -19,7 +19,7 @@ type Account struct {
 var ErrUnknown = errors.New("unknown account")
 
 type Repository interface {
-	CreateAccount(ctx context.Context, account Account) error
+	CreateAccount(account Account) (Account, error)
 	GetAllAcount(ctx context.Context) ([]Account, error)
 	GetAccountByID(ctx context.Context, id string) (Account, error)
 	UpdateBalance(ctx context.Context, amount float32, accountID string) (Account, error)
