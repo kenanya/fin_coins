@@ -1,7 +1,6 @@
 package payment
 
 import (
-	"context"
 	"time"
 )
 
@@ -16,7 +15,7 @@ type Payment struct {
 }
 
 type Repository interface {
-	SendPayment(ctx context.Context, payment Payment) error
-	GetPaymentByDirection(ctx context.Context, direction string) ([]Payment, error)
-	GetAllPayment(ctx context.Context) ([]Payment, error)
+	SendPayment(accountID string, amount float32, toAccount string) error
+	GetPaymentByDirection(direction string) ([]Payment, error)
+	GetAllPayment() ([]Payment, error)
 }

@@ -1,8 +1,6 @@
 package account
 
 import (
-	"context"
-	"errors"
 	"time"
 )
 
@@ -16,11 +14,8 @@ type Account struct {
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
-var ErrUnknown = errors.New("unknown account")
-
 type Repository interface {
 	CreateAccount(account Account) (Account, error)
-	GetAllAcount(ctx context.Context) ([]Account, error)
-	GetAccountByID(ctx context.Context, id string) (Account, error)
-	UpdateBalance(ctx context.Context, amount float32, accountID string) (Account, error)
+	GetAllAccount() ([]Account, error)
+	GetAccountByID(id string) (Account, error)
 }

@@ -1,28 +1,23 @@
 package account
 
-import (
-	"errors"
-)
+import "github.com/kenanya/fin_coins/common"
 
-var ErrInvalidArgument = errors.New("invalid argument")
+// var ErrInvalidArgument = errors.New("invalid argument")
 
 type Service interface {
-	// BookNewCargo(origin location.UNLocode, destination location.UNLocode, deadline time.Time) (cargo.TrackingID, error)
-	// LoadCargo(id cargo.TrackingID) (Cargo, error)
 	CreateAccount(id string, balance float32, currency string) (Account, error)
+	GetAllAccount() ([]Account, error)
+	GetAccountByID(id string) (Account, error)
 }
 
 type service struct {
 	accountRepo Repository
-	// locations      location.Repository
-	// handlingEvents cargo.HandlingEventRepository
-	// routingService routing.Service
 }
 
 func (s *service) CreateAccount(id string, balance float32, currency string) (Account, error) {
 	var accountPass = Account{}
 	if id == "" || balance < 0 || currency == "" {
-		return accountPass, ErrInvalidArgument
+		return accountPass, common.ErrInvalidArgument
 	}
 	accountPass = Account{
 		ID:       id,
@@ -38,7 +33,29 @@ func (s *service) CreateAccount(id string, balance float32, currency string) (Ac
 	return accountRes, nil
 }
 
-// NewService creates a booking service with necessary dependencies.
+func (s *service) GetAllAccount() ([]Account, error) {
+
+	accounts, err := s.accountRepo.GetAllAccount()
+	if err != nil {
+		return accounts, err
+	}
+
+	return accounts, nil
+}
+
+func (s *service) GetAccountByID(id string) (Account, error) {
+	var account = Account{}
+	if id == "" {
+		return account, common.ErrInvalidArgument
+	}
+	account, err := s.accountRepo.GetAccountByID(id)
+	if err != nil {
+		return account, err
+	}
+
+	return account, nil
+}
+
 func NewService(accountRepo Repository) Service {
 	return &service{
 		accountRepo: accountRepo,

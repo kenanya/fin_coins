@@ -26,3 +26,40 @@ func makeCreateAccountEndpoint(s Service) endpoint.Endpoint {
 		return createAccountResponse{Account: account, Err: err}, nil
 	}
 }
+
+type getAllAccountRequest struct {
+}
+
+type getAllAccountResponse struct {
+	Accounts []Account `json:"accounts,omitempty"`
+	Err      error     `json:"error,omitempty"`
+}
+
+func (r getAllAccountResponse) error() error { return r.Err }
+
+func makeGetAllAccountEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		_ = request.(getAllAccountRequest)
+		accounts, err := s.GetAllAccount()
+		return getAllAccountResponse{Accounts: accounts, Err: err}, nil
+	}
+}
+
+type getAccountByIDRequest struct {
+	ID string
+}
+
+type getAccountByIDResponse struct {
+	Account Account `json:"account,omitempty"`
+	Err     error   `json:"error,omitempty"`
+}
+
+func (r getAccountByIDResponse) error() error { return r.Err }
+
+func makeGetAccountByIDEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		req := request.(getAccountByIDRequest)
+		account, err := s.GetAccountByID(req.ID)
+		return getAccountByIDResponse{Account: account, Err: err}, nil
+	}
+}

@@ -29,3 +29,26 @@ func (s *loggingService) CreateAccount(id string, balance float32, currency stri
 	}(time.Now())
 	return s.Service.CreateAccount(id, balance, currency)
 }
+
+func (s *loggingService) GetAllAccount() (accounts []Account, err error) {
+	defer func(begin time.Time) {
+		s.logger.Log(
+			"method", "get all account",
+			"took", time.Since(begin),
+			"err", err,
+		)
+	}(time.Now())
+	return s.Service.GetAllAccount()
+}
+
+func (s *loggingService) GetAccountByID(id string) (account Account, err error) {
+	defer func(begin time.Time) {
+		s.logger.Log(
+			"method", "get account by id",
+			"id", id,
+			"took", time.Since(begin),
+			"err", err,
+		)
+	}(time.Now())
+	return s.Service.GetAccountByID(id)
+}

@@ -1,4 +1,4 @@
-package account
+package payment
 
 import (
 	"context"
@@ -13,71 +13,55 @@ import (
 	kithttp "github.com/go-kit/kit/transport/http"
 )
 
-// MakeHandler returns a handler for the account service.
+// MakeHandler returns a handler for the payment service.
 func MakeHandler(ac Service, logger kitlog.Logger) http.Handler {
 	opts := []kithttp.ServerOption{
 		kithttp.ServerErrorHandler(transport.NewLogErrorHandler(logger)),
 		kithttp.ServerErrorEncoder(encodeError),
 	}
 
-	createAccountHandler := kithttp.NewServer(
-		makeCreateAccountEndpoint(ac),
-		decodeCreateAccountRequest,
+	sendPaymentHandler := kithttp.NewServer(
+		makeSendPaymentEndpoint(ac),
+		decodeSendPaymentRequest,
 		encodeResponse,
 		opts...,
 	)
-	getAllAccountHandler := kithttp.NewServer(
-		makeGetAllAccountEndpoint(ac),
-		decodeGetAllAccountRequest,
-		encodeResponse,
-		opts...,
-	)
-	getAccountByIDHandler := kithttp.NewServer(
-		makeGetAccountByIDEndpoint(ac),
-		decodeGetAccountByIDRequest,
-		encodeResponse,
-		opts...,
-	)
+	// loadCargoHandler := kithttp.NewServer(
+	// 	makeLoadCargoEndpoint(bs),
+	// 	decodeLoadCargoRequest,
+	// 	encodeResponse,
+	// 	opts...,
+	// )
 
 	r := mux.NewRouter()
 
-	r.Handle("/account/v1/account", createAccountHandler).Methods("POST")
-	r.Handle("/account/v1/account", getAllAccountHandler).Methods("GET")
-	r.Handle("/account/v1/account/{id}", getAccountByIDHandler).Methods("GET")
+	r.Handle("/payment/v1/payment", sendPaymentHandler).Methods("POST")
+	// r.Handle("/booking/v1/cargos", listCargosHandler).Methods("GET")
+	// r.Handle("/booking/v1/cargos/{id}", loadCargoHandler).Methods("GET")
+	// r.Handle("/booking/v1/cargos/{id}/request_routes", requestRoutesHandler).Methods("GET")
+	// r.Handle("/booking/v1/cargos/{id}/assign_to_route", assignToRouteHandler).Methods("POST")
+	// r.Handle("/booking/v1/cargos/{id}/change_destination", changeDestinationHandler).Methods("POST")
+	// r.Handle("/booking/v1/locations", listLocationsHandler).Methods("GET")
 
 	return r
 }
 
-func decodeCreateAccountRequest(_ context.Context, r *http.Request) (interface{}, error) {
+func decodeSendPaymentRequest(_ context.Context, r *http.Request) (interface{}, error) {
 	var body struct {
-		ID       string  `json:"id"`
-		Balance  float32 `json:"balance"`
-		Currency string  `json:"currency"`
+		AccountID string  `json:"account_id"`
+		Amount    float32 `json:"amount"`
+		ToAccount string  `json:"to_account"`
 	}
 
 	if err := json.NewDecoder(r.Body).Decode(&body); err != nil {
 		return nil, err
 	}
 
-	return createAccountRequest{
-		ID:       body.ID,
-		Balance:  body.Balance,
-		Currency: body.Currency,
+	return sendPaymentRequest{
+		AccountID: body.AccountID,
+		Amount:    body.Amount,
+		ToAccount: body.ToAccount,
 	}, nil
-}
-
-func decodeGetAccountByIDRequest(_ context.Context, r *http.Request) (interface{}, error) {
-
-	vars := mux.Vars(r)
-	id, ok := vars["id"]
-	if !ok {
-		return nil, common.ErrBadRoute
-	}
-	return getAccountByIDRequest{ID: id}, nil
-}
-
-func decodeGetAllAccountRequest(_ context.Context, r *http.Request) (interface{}, error) {
-	return getAllAccountRequest{}, nil
 }
 
 func encodeResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {

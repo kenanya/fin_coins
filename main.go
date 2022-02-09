@@ -10,6 +10,7 @@ import (
 	"syscall"
 
 	"github.com/kenanya/fin_coins/account"
+	"github.com/kenanya/fin_coins/payment"
 	"github.com/kenanya/fin_coins/repository"
 
 	stdprometheus "github.com/prometheus/client_golang/prometheus"
@@ -24,26 +25,18 @@ import (
 
 const (
 	defaultPort = "9595"
-	// dbsource    = "postgresql://postgres@localhost:5432/ordersdb?sslmode=disable"
-	// defaultRoutingServiceURL = "http://localhost:9797"
-
-	dbHost     = "localhost"
-	dbPort     = 5432
-	dbUser     = "postgres"
-	dbPassword = "postgres"
-	dbName     = "fin_coins"
-	schemaName = "wallet"
+	dbHost      = "localhost"
+	dbPort      = 5432
+	dbUser      = "postgres"
+	dbPassword  = "postgres"
+	dbName      = "fin_coins"
+	schemaName  = "wallet"
 )
 
 func main() {
 	var (
-		addr = envString("PORT", defaultPort)
-		// rsurl = envString("ROUTINGSERVICE_URL", defaultRoutingServiceURL)
-
+		addr     = envString("PORT", defaultPort)
 		httpAddr = flag.String("http.addr", ":"+addr, "HTTP listen address")
-		// routingServiceURL = flag.String("service.routing", rsurl, "routing service URL")
-
-		// ctx = context.Background()
 	)
 
 	flag.Parse()
@@ -67,34 +60,16 @@ func main() {
 
 	var (
 		accountRepo = repository.NewAccountRepository(db, logger)
-		// locations      = inmem.NewLocationRepository()
-		// voyages        = inmem.NewVoyageRepository()
-		// handlingEvents = inmem.NewHandlingEventRepository()
+		paymentRepo = repository.NewPaymentRepository(db, logger)
 	)
 
-	// // Configure some questionable dependencies.
-	// var (
-	// 	handlingEventFactory = cargo.HandlingEventFactory{
-	// 		CargoRepository:    cargos,
-	// 		VoyageRepository:   voyages,
-	// 		LocationRepository: locations,
-	// 	}
-	// 	handlingEventHandler = handling.NewEventHandler(
-	// 		inspection.NewService(cargos, handlingEvents, nil),
-	// 	)
-	// )
-
-	// // Facilitate testing by adding some cargos.
-	// storeTestData(cargos)
+	// Facilitate testing by adding some account
 
 	fieldKeys := []string{"method"}
 
-	// var rs routing.Service
-	// rs = routing.NewProxyingMiddleware(ctx, *routingServiceURL)(rs)
-
 	var ac account.Service
 	ac = account.NewService(accountRepo)
-	ac = account.NewLoggingService(log.With(logger, "component", "booking"), ac)
+	ac = account.NewLoggingService(log.With(logger, "component", "account"), ac)
 	ac = account.NewInstrumentingService(
 		kitprometheus.NewCounterFrom(stdprometheus.CounterOpts{
 			Namespace: "api",
@@ -111,13 +86,31 @@ func main() {
 		ac,
 	)
 
+	var ps payment.Service
+	ps = payment.NewService(paymentRepo)
+	ps = payment.NewLoggingService(log.With(logger, "component", "payment"), ps)
+	ps = payment.NewInstrumentingService(
+		kitprometheus.NewCounterFrom(stdprometheus.CounterOpts{
+			Namespace: "api",
+			Subsystem: "payment_service",
+			Name:      "request_count",
+			Help:      "Number of requests received.",
+		}, fieldKeys),
+		kitprometheus.NewSummaryFrom(stdprometheus.SummaryOpts{
+			Namespace: "api",
+			Subsystem: "payment_service",
+			Name:      "request_latency_microseconds",
+			Help:      "Total duration of requests in microseconds.",
+		}, fieldKeys),
+		ps,
+	)
+
 	httpLogger := log.With(logger, "component", "http")
 
 	mux := http.NewServeMux()
 
 	mux.Handle("/account/v1/", account.MakeHandler(ac, httpLogger))
-	// mux.Handle("/tracking/v1/", tracking.MakeHandler(ts, httpLogger))
-	// mux.Handle("/handling/v1/", handling.MakeHandler(hs, httpLogger))
+	mux.Handle("/payment/v1/", payment.MakeHandler(ps, httpLogger))
 
 	http.Handle("/", accessControl(mux))
 	http.Handle("/metrics", promhttp.Handler())
@@ -157,23 +150,3 @@ func envString(env, fallback string) string {
 	}
 	return e
 }
-
-// func storeTestData(r cargo.Repository) {
-// 	test1 := cargo.New("FTL456", cargo.RouteSpecification{
-// 		Origin:          location.AUMEL,
-// 		Destination:     location.SESTO,
-// 		ArrivalDeadline: time.Now().AddDate(0, 0, 7),
-// 	})
-// 	if err := r.Store(test1); err != nil {
-// 		panic(err)
-// 	}
-
-// 	test2 := cargo.New("ABC123", cargo.RouteSpecification{
-// 		Origin:          location.SESTO,
-// 		Destination:     location.CNHKG,
-// 		ArrivalDeadline: time.Now().AddDate(0, 0, 14),
-// 	})
-// 	if err := r.Store(test2); err != nil {
-// 		panic(err)
-// 	}
-// }
