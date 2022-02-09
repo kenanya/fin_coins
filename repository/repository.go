@@ -60,6 +60,11 @@ func (repo *allRepository) GetAccountByID(id string) (account.Account, error) {
 	return accountRow, nil
 }
 
+func (repo *allRepository) Tes() error {
+	fmt.Println("tes dulu")
+	return nil
+}
+
 func (repo *allRepository) GetAllAccount() ([]account.Account, error) {
 
 	accounts := []account.Account{}

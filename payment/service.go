@@ -24,6 +24,7 @@ func (s *service) SendPayment(accountID string, amount float32, toAccount string
 		return common.ErrInvalidArgument
 	}
 
+	_ = s.accountRepo.Tes()
 	fmt.Println("sebelum error")
 	fromAccountData, _ := s.accountRepo.GetAccountByID(accountID)
 	toAccountData, _ := s.accountRepo.GetAccountByID(toAccount)
@@ -48,8 +49,9 @@ func (s *service) SendPayment(accountID string, amount float32, toAccount string
 	return nil
 }
 
-func NewService(paymentRepo Repository) Service {
+func NewService(paymentRepo Repository, accountRepo account.Repository) Service {
 	return &service{
 		paymentRepo: paymentRepo,
+		accountRepo: accountRepo,
 	}
 }

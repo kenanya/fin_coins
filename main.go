@@ -87,7 +87,7 @@ func main() {
 	)
 
 	var ps payment.Service
-	ps = payment.NewService(paymentRepo)
+	ps = payment.NewService(paymentRepo, accountRepo)
 	ps = payment.NewLoggingService(log.With(logger, "component", "payment"), ps)
 	ps = payment.NewInstrumentingService(
 		kitprometheus.NewCounterFrom(stdprometheus.CounterOpts{
