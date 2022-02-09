@@ -25,3 +25,21 @@ func makeSendPaymentEndpoint(s Service) endpoint.Endpoint {
 		return sendPaymentResponse{Err: err}, nil
 	}
 }
+
+type getAllPaymentRequest struct {
+}
+
+type getAllPaymentResponse struct {
+	Payments []Payment `json:"payments,omitempty"`
+	Err      error     `json:"error,omitempty"`
+}
+
+func (r getAllPaymentResponse) error() error { return r.Err }
+
+func makeGetAllPaymentEndpoint(s Service) endpoint.Endpoint {
+	return func(ctx context.Context, request interface{}) (interface{}, error) {
+		_ = request.(getAllPaymentRequest)
+		payments, err := s.GetAllPayment()
+		return getAllPaymentResponse{Payments: payments, Err: err}, nil
+	}
+}

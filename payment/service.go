@@ -7,8 +7,7 @@ import (
 
 type Service interface {
 	SendPayment(accountID string, amount float32, toAccount string) error
-	// GetPaymentByDirection(direction string) ([]Payment, error)
-	// GetAllPayment() ([]Payment, error)
+	GetAllPayment() ([]Payment, error)
 }
 
 type service struct {
@@ -43,6 +42,16 @@ func (s *service) SendPayment(accountID string, amount float32, toAccount string
 	}
 
 	return nil
+}
+
+func (s *service) GetAllPayment() ([]Payment, error) {
+
+	payments, err := s.paymentRepo.GetAllPayment()
+	if err != nil {
+		return payments, err
+	}
+
+	return payments, nil
 }
 
 func NewService(paymentRepo Repository, accountRepo account.Repository) Service {

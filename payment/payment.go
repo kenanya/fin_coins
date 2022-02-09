@@ -17,6 +17,5 @@ type Payment struct {
 
 type Repository interface {
 	SendPayment(accountID string, amount float32, toAccount string) error
-	GetPaymentByDirection(direction string) ([]Payment, error)
 	GetAllPayment() ([]Payment, error)
 }

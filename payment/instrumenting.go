@@ -29,3 +29,12 @@ func (s *instrumentingService) SendPayment(accountID string, amount float32, toA
 
 	return s.Service.SendPayment(accountID, amount, toAccount)
 }
+
+func (s *instrumentingService) GetAllPayment() ([]Payment, error) {
+	defer func(begin time.Time) {
+		s.requestCount.With("method", "get all payment").Add(1)
+		s.requestLatency.With("method", "get all payment").Observe(time.Since(begin).Seconds())
+	}(time.Now())
+
+	return s.Service.GetAllPayment()
+}

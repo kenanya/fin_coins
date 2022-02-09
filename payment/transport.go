@@ -26,18 +26,17 @@ func MakeHandler(ac Service, logger kitlog.Logger) http.Handler {
 		encodeResponse,
 		opts...,
 	)
-	// loadCargoHandler := kithttp.NewServer(
-	// 	makeLoadCargoEndpoint(bs),
-	// 	decodeLoadCargoRequest,
-	// 	encodeResponse,
-	// 	opts...,
-	// )
+	getAllPaymentHandler := kithttp.NewServer(
+		makeGetAllPaymentEndpoint(ac),
+		decodeGetAllPaymentRequest,
+		encodeResponse,
+		opts...,
+	)
 
 	r := mux.NewRouter()
 
 	r.Handle("/payment/v1/payment", sendPaymentHandler).Methods("POST")
-	// r.Handle("/booking/v1/cargos", listCargosHandler).Methods("GET")
-	// r.Handle("/booking/v1/cargos/{id}", loadCargoHandler).Methods("GET")
+	r.Handle("/payment/v1/payment", getAllPaymentHandler).Methods("GET")
 
 	return r
 }
@@ -58,6 +57,10 @@ func decodeSendPaymentRequest(_ context.Context, r *http.Request) (interface{}, 
 		Amount:    body.Amount,
 		ToAccount: body.ToAccount,
 	}, nil
+}
+
+func decodeGetAllPaymentRequest(_ context.Context, r *http.Request) (interface{}, error) {
+	return getAllPaymentRequest{}, nil
 }
 
 func encodeResponse(ctx context.Context, w http.ResponseWriter, response interface{}) error {

@@ -4,7 +4,6 @@ import (
 	"context"
 	"database/sql"
 	"errors"
-	"fmt"
 
 	"github.com/kenanya/fin_coins/account"
 	"github.com/kenanya/fin_coins/lib"
@@ -55,7 +54,6 @@ func (repo *allRepository) GetAccountByID(id string) (account.Account, error) {
 		level.Error(repo.logger).Log("err", err.Error())
 		return accountRow, err
 	}
-	fmt.Println(accountRow)
 
 	return accountRow, nil
 }
@@ -73,7 +71,6 @@ func (repo *allRepository) GetAllAccount() ([]account.Account, error) {
 
 	for rows.Next() {
 		var each account.Account
-		fmt.Println(rows)
 		if err := rows.Scan(&each.ID, &each.Balance, &each.Currency, &each.CreatedAt, &each.UpdatedAt); err != nil {
 			level.Error(repo.logger).Log("err", err.Error())
 			return accounts, err
@@ -87,7 +84,7 @@ func (repo *allRepository) GetAllPayment() ([]payment.Payment, error) {
 
 	payments := []payment.Payment{}
 	rows, err := repo.db.Query(
-		`SELECT id, account_id, amount, to_account, from_account, direction, created_at FROM payment`)
+		`SELECT id, account_id, transaction_id, amount, to_account, from_account, direction, created_at FROM payment`)
 	if err != nil {
 		level.Error(repo.logger).Log("err", err.Error())
 		return payments, err
@@ -96,7 +93,7 @@ func (repo *allRepository) GetAllPayment() ([]payment.Payment, error) {
 
 	for rows.Next() {
 		var each payment.Payment
-		if err := rows.Scan(&each.ID, &each.AccountID, &each.Amount, &each.ToAccount, &each.FromAccount, &each.Direction, &each.CreatedAt); err != nil {
+		if err := rows.Scan(&each.ID, &each.AccountID, &each.TransactionID, &each.Amount, &each.ToAccount, &each.FromAccount, &each.Direction, &each.CreatedAt); err != nil {
 			level.Error(repo.logger).Log("err", err.Error())
 			return payments, err
 		}
@@ -172,15 +169,16 @@ func (repo *allRepository) SendPayment(accountID string, amount float32, toAccou
 	}
 
 	var paymentPass = payment.Payment{
-		ID:        uuid.New(),
-		AccountID: accountID,
-		Amount:    amount,
-		ToAccount: toAccount,
-		Direction: lib.CONS_DIRECTION_OUTGOING,
+		ID:          uuid.New(),
+		AccountID:   accountID,
+		Amount:      amount,
+		ToAccount:   toAccount,
+		Direction:   lib.CONS_DIRECTION_OUTGOING,
+		FromAccount: "",
 	}
 
-	sql = `INSERT INTO payment (id, account_id, transaction_id, amount, to_account, direction, created_at) VALUES ($1,$2,$3,$4,$5,$6,$7)`
-	_, err = tx.ExecContext(ctx, sql, paymentPass.ID, paymentPass.AccountID, transactionID, paymentPass.Amount, paymentPass.ToAccount, paymentPass.Direction, time.Now())
+	sql = `INSERT INTO payment (id, account_id, transaction_id, amount, to_account, from_account, direction, created_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`
+	_, err = tx.ExecContext(ctx, sql, paymentPass.ID, paymentPass.AccountID, transactionID, paymentPass.Amount, paymentPass.ToAccount, paymentPass.FromAccount, paymentPass.Direction, time.Now())
 	if err != nil {
 		tx.Rollback()
 		level.Error(repo.logger).Log("err", err.Error())
@@ -212,10 +210,11 @@ func (repo *allRepository) SendPayment(accountID string, amount float32, toAccou
 		Amount:      amount,
 		FromAccount: accountID,
 		Direction:   lib.CONS_DIRECTION_INCOMING,
+		ToAccount:   "",
 	}
 
-	sql = `INSERT INTO payment (id, account_id, transaction_id, amount, from_account, direction, created_at) VALUES ($1,$2,$3,$4,$5,$6,$7)`
-	_, err = tx.ExecContext(ctx, sql, paymentPass.ID, paymentPass.AccountID, transactionID, paymentPass.Amount, paymentPass.FromAccount, paymentPass.Direction, time.Now())
+	sql = `INSERT INTO payment (id, account_id, transaction_id, amount, from_account, to_account, direction, created_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`
+	_, err = tx.ExecContext(ctx, sql, paymentPass.ID, paymentPass.AccountID, transactionID, paymentPass.Amount, paymentPass.FromAccount, paymentPass.ToAccount, paymentPass.Direction, time.Now())
 	if err != nil {
 		tx.Rollback()
 		level.Error(repo.logger).Log("err", err.Error())
