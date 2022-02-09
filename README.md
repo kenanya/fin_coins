@@ -1,5 +1,5 @@
 ## A. Description
-This is a backend service (API and database) for a generic wallet service. This service contains 2 entity:
+This is a backend service (API and database) for a generic wallet service. This service contains 2 entities:
 - Account
 - Payment
 
@@ -7,7 +7,7 @@ Tech Stack: golang, go-kit framework, PostgreSQL, docker
 
 ## B. How to set up and start the backend server
 The config file is located at:
-- *meal_be/common/configGlobal.yaml*
+- *fin_coins/common/configGlobal.yaml*
 
 You can change the values according to your configuration. 
 
@@ -44,7 +44,7 @@ Below are the sample requests and expected responses for each API:
 
 ### D.1. Create Account
 **Purpose:** Creating account
-**Endpoint:** *localhost:9595/account/v1/account*
+**Endpoint:** *{PREFIX_URL}/account/v1/account*
 | Param | Value |
 | ------ | ------ |
 | id | unique id for account  
@@ -53,7 +53,7 @@ Below are the sample requests and expected responses for each API:
 
 #### Positive Scenario 1 - Request
 ```
-curl --location --request POST 'localhost:9595/account/v1/account' \
+curl --location --request POST '{PREFIX_URL}/account/v1/account' \
 --header 'Content-Type: application/json' \
 --data-raw '{
    "id": "panda101",
@@ -80,14 +80,14 @@ Content-Type: "application/json"
 
 ### D.2. Get All Account
 **Purpose:** Listing all available accounts
-**Endpoint:** *localhost:9595/account/v1/account*
+**Endpoint:** *{PREFIX_URL}/account/v1/account*
 | Param | Value |
 | ------ | ------ |
 |  |  |
 
 #### Positive Scenario 1 - Request
 ```json
-curl --location --request GET 'localhost:9595/account/v1/account' \
+curl --location --request GET '{PREFIX_URL}/account/v1/account' \
 --data-raw ''
 ```
 
@@ -118,14 +118,14 @@ Content-Type: "application/json"
 
 ### D.3. Get Account by ID
 **Purpose:** Getting account by account id
-**Endpoint:** *localhost:9595/account/v1/account/{id}*
+**Endpoint:** *{PREFIX_URL}/account/v1/account/{id}*
 | Param | Value |
 | ------ | ------ |
 | id | account id  |
 
 #### Positive Scenario 1 - Request
 ```json
-curl --location --request GET 'localhost:9595/account/v1/account/panda101' \
+curl --location --request GET '{PREFIX_URL}/account/v1/account/panda101' \
 --data-raw ''
 ```
 
@@ -147,7 +147,7 @@ Content-Type: "application/json"
 
 ### D.4. Send Payment
 **Purpose:** Sending payment from one account to another account that registered in this wallet system
-**Endpoint:** *localhost:9595/payment/v1/payment*
+**Endpoint:** *{PREFIX_URL}/payment/v1/payment*
 | Param | Value |
 | ------ | ------ |
 | account_id | account id of the sender  |
@@ -156,7 +156,7 @@ Content-Type: "application/json"
 
 #### Positive Scenario 1 - Request
 ```json
-curl --location --request POST 'localhost:9595/payment/v1/payment' \
+curl --location --request POST '{PREFIX_URL}/payment/v1/payment' \
 --header 'Content-Type: application/json' \
 --data-raw '{
    "account_id": "bob123",
@@ -174,14 +174,14 @@ Content-Type: "application/json"
 
 ### D.5. Get All Payment
 **Purpose:** Listing all payments
-**Endpoint:** *localhost:9595/account/v1/account*
+**Endpoint:** *{PREFIX_URL}/account/v1/account*
 | Param | Value |
 | ------ | ------ |
 |  |  |
 
 #### Positive Scenario 1 - Request
 ```json
-curl --location --request GET 'localhost:9595/payment/v1/payment' \
+curl --location --request GET '{PREFIX_URL}/payment/v1/payment' \
 --data-raw ''
 ```
 
