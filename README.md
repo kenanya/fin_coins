@@ -63,7 +63,7 @@ curl --location --request POST '{PREFIX_URL}/account/v1/account' \
 ```
 
 #### Positive Scenario 1 - Response
-```json
+```
 200 Ok
 Content-Type: "application/json"
 
@@ -86,13 +86,13 @@ Content-Type: "application/json"
 |  |  |
 
 #### Positive Scenario 1 - Request
-```json
+```
 curl --location --request GET '{PREFIX_URL}/account/v1/account' \
 --data-raw ''
 ```
 
 #### Positive Scenario 1 - Response
-```json
+```
 200 Ok
 Content-Type: "application/json"
 
@@ -124,13 +124,13 @@ Content-Type: "application/json"
 | id | account id  |
 
 #### Positive Scenario 1 - Request
-```json
+```
 curl --location --request GET '{PREFIX_URL}/account/v1/account/panda101' \
 --data-raw ''
 ```
 
 #### Positive Scenario 1 - Response
-```json
+```
 200 OK
 Content-Type: "application/json"
 
@@ -155,7 +155,7 @@ Content-Type: "application/json"
 | to_account | account id of the receiver  |
 
 #### Positive Scenario 1 - Request
-```json
+```
 curl --location --request POST '{PREFIX_URL}/payment/v1/payment' \
 --header 'Content-Type: application/json' \
 --data-raw '{
@@ -166,7 +166,7 @@ curl --location --request POST '{PREFIX_URL}/payment/v1/payment' \
 ```
 
 #### Positive Scenario 1 - Response
-```json
+```
 200 OK
 Content-Type: "application/json"
 {}
@@ -180,13 +180,13 @@ Content-Type: "application/json"
 |  |  |
 
 #### Positive Scenario 1 - Request
-```json
+```
 curl --location --request GET '{PREFIX_URL}/payment/v1/payment' \
 --data-raw ''
 ```
 
 #### Positive Scenario 1 - Response
-```json
+```
 200 Ok
 Content-Type: "application/json"
 
