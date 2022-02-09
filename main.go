@@ -25,7 +25,7 @@ import (
 )
 
 const (
-	defaultPort = "9595"
+	defaultPort = "9696"
 	dbHost      = "localhost"
 	dbPort      = 5432
 	dbUser      = "postgres"

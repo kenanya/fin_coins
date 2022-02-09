@@ -28,9 +28,7 @@ type allRepository struct {
 func (repo *allRepository) CreateAccount(accountData account.Account) (account.Account, error) {
 	var accountRow = account.Account{}
 	timeNow := time.Now()
-	sql := `
-			INSERT INTO account (id, balance, currency, created_at, updated_at)
-			VALUES ($1,$2,$3,$4,$5)`
+	sql := `INSERT INTO account (id, balance, currency, created_at, updated_at) VALUES ($1,$2,$3,$4,$5)`
 	_, err := repo.db.Exec(sql, accountData.ID, accountData.Balance, accountData.Currency, timeNow, timeNow)
 	if err != nil {
 		return accountRow, err
@@ -44,6 +42,15 @@ func (repo *allRepository) CreateAccount(accountData account.Account) (account.A
 		}
 	}
 	return accountRow, nil
+}
+
+func (repo *allRepository) DeleteAccount(id string) error {
+	sql := `DELETE FROM account WHERE id = $1;`
+	_, err := repo.db.Exec(sql, id)
+	if err != nil {
+		return err
+	}
+	return nil
 }
 
 func (repo *allRepository) GetAccountByID(id string) (account.Account, error) {
@@ -100,20 +107,6 @@ func (repo *allRepository) GetAllPayment() ([]payment.Payment, error) {
 		payments = append(payments, each)
 	}
 	return payments, nil
-}
-
-func (repo *allRepository) UpdateBalance(finalAmount float32, accountID string) (account.Account, error) {
-	var accountRow = account.Account{}
-	// sql := `UPDATE account SET balance=balance+$1 WHERE id=$2`
-	sql := `UPDATE account SET balance=$1 WHERE id=$2`
-
-	_, err := repo.db.Exec(sql, finalAmount, accountID)
-	if err != nil {
-		return accountRow, err
-	}
-
-	accountRow, err = repo.GetAccountByID(accountID)
-	return accountRow, err
 }
 
 func (repo *allRepository) GetPaymentByDirection(direction string) ([]payment.Payment, error) {
@@ -221,6 +214,7 @@ func (repo *allRepository) SendPayment(accountID string, amount float32, toAccou
 		return err
 	}
 
+	time.Sleep(8 * time.Second)
 	// Commit the change if all queries ran successfully
 	err = tx.Commit()
 	if err != nil {
