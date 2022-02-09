@@ -22,7 +22,7 @@ import (
 // }
 
 var test1 = account.Account{
-	ID:        "test-ken999",
+	ID:        "ken99999",
 	Balance:   50000,
 	Currency:  "USD",
 	CreatedAt: time.Now(),
@@ -50,13 +50,11 @@ func TestCreateAccount(t *testing.T) {
 	timeNow := time.Now()
 	accountRepo := NewAccountRepository(db, logger)
 
-	// query := "INSERT INTO account \\(id, balance, currency, created_at, updated_at\\) VALUES \\(\\?, \\?, \\?, \\?, \\?\\)"
 	query := `INSERT INTO account (id, balance, currency, created_at, updated_at) VALUES ($1,$2,$3,$4,$5)`
+	mock.ExpectExec(regexp.QuoteMeta(query)).WithArgs(test1.ID, test1.Balance, test1.Currency, timeNow, timeNow).WillReturnResult(sqlmock.NewResult(0, 1))
 
-	prep := mock.ExpectPrepare(query)
-	prep.ExpectExec().WithArgs(test1.ID, test1.Balance, test1.Currency, timeNow, timeNow).WillReturnResult(sqlmock.NewResult(0, 1))
-
-	_, err := accountRepo.CreateAccount(test1)
+	user, err := accountRepo.CreateAccount(test1)
+	assert.NotNil(t, user)
 	assert.NoError(t, err)
 }
 
@@ -69,7 +67,6 @@ func TestGetAccountByID(t *testing.T) {
 	rows := sqlmock.NewRows([]string{"id", "balance", "currency", "created_at", "updated_at"}).
 		AddRow(test1.ID, test1.Balance, test1.Currency, test1.CreatedAt, test1.UpdatedAt)
 
-	// mock.ExpectQuery(query).WithArgs(test1.ID).WillReturnRows(rows)
 	mock.ExpectQuery(regexp.QuoteMeta(query)).WithArgs(test1.ID).WillReturnRows(rows)
 
 	user, err := accountRepo.GetAccountByID(test1.ID)
