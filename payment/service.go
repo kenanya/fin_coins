@@ -1,8 +1,6 @@
 package payment
 
 import (
-	"fmt"
-
 	"github.com/kenanya/fin_coins/account"
 	"github.com/kenanya/fin_coins/common"
 )
@@ -24,8 +22,6 @@ func (s *service) SendPayment(accountID string, amount float32, toAccount string
 		return common.ErrInvalidArgument
 	}
 
-	_ = s.accountRepo.Tes()
-	fmt.Println("sebelum error")
 	fromAccountData, _ := s.accountRepo.GetAccountByID(accountID)
 	toAccountData, _ := s.accountRepo.GetAccountByID(toAccount)
 

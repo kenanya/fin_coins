@@ -5,13 +5,14 @@ import (
 )
 
 type Payment struct {
-	ID          string    `json:"id"`
-	AccountID   string    `json:"account_id"`
-	Amount      float32   `json:"amount"`
-	ToAccount   string    `json:"to_account"`
-	FromAccount string    `json:"from_account"`
-	Direction   string    `json:"direction"`
-	CreatedAt   time.Time `json:"created_at"`
+	ID            string    `json:"id"`
+	AccountID     string    `json:"account_id"`
+	TransactionID string    `json:"transaction_id"`
+	Amount        float32   `json:"amount"`
+	ToAccount     string    `json:"to_account"`
+	FromAccount   string    `json:"from_account"`
+	Direction     string    `json:"direction"`
+	CreatedAt     time.Time `json:"created_at"`
 }
 
 type Repository interface {

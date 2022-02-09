@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
+	"strings"
 	"syscall"
 
 	"github.com/kenanya/fin_coins/account"
@@ -64,6 +65,7 @@ func main() {
 	)
 
 	// Facilitate testing by adding some account
+	storeTestData(accountRepo)
 
 	fieldKeys := []string{"method"}
 
@@ -149,4 +151,34 @@ func envString(env, fallback string) string {
 		return fallback
 	}
 	return e
+}
+
+func storeTestData(r account.Repository) {
+	errDuplicateKey := "pq: duplicate key value violates unique constraint"
+	test1 := account.Account{
+		ID:       "jack888",
+		Balance:  4000,
+		Currency: "USD",
+	}
+	if _, err := r.CreateAccount(test1); err != nil && !strings.Contains(err.Error(), errDuplicateKey) {
+		panic(err)
+	}
+
+	test2 := account.Account{
+		ID:       "irin977",
+		Balance:  8000,
+		Currency: "USD",
+	}
+	if _, err := r.CreateAccount(test2); err != nil && !strings.Contains(err.Error(), errDuplicateKey) {
+		panic(err)
+	}
+
+	test3 := account.Account{
+		ID:       "mike2167",
+		Balance:  20000,
+		Currency: "IDR",
+	}
+	if _, err := r.CreateAccount(test3); err != nil && !strings.Contains(err.Error(), errDuplicateKey) {
+		panic(err)
+	}
 }

@@ -18,5 +18,4 @@ type Repository interface {
 	CreateAccount(account Account) (Account, error)
 	GetAllAccount() ([]Account, error)
 	GetAccountByID(id string) (Account, error)
-	Tes() error
 }
