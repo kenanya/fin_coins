@@ -191,20 +191,26 @@ curl --location --request GET '{PREFIX_URL}/payment/v1/payment' \
 Content-Type: "application/json"
 
 {
-    "accounts": [
+    "payments": [
         {
-            "id": "alice456",
-            "balance": 2100,
-            "currency": "USD",
-            "created_at": "2022-02-09T11:19:40.786259Z",
-            "updated_at": "2022-02-09T11:49:52.361321Z"
+            "id": "e850688a-ef15-4da6-8486-b7656752c87b",
+            "account_id": "bob123",
+            "transaction_id": "21a3ec76-c017-452d-9eb2-c5d2c0ebbca4",
+            "amount": 50,
+            "to_account": "alice456",
+            "from_account": "",
+            "direction": "outgoing",
+            "created_at": "2022-02-09T14:15:00.421456Z"
         },
         {
-            "id": "panda101",
-            "balance": 2500,
-            "currency": "USD",
-            "created_at": "2022-02-09T13:11:02.604785Z",
-            "updated_at": "2022-02-09T13:11:02.604785Z"
+            "id": "9479d132-4553-4ad7-b3b1-978412c88b41",
+            "account_id": "alice456",
+            "transaction_id": "21a3ec76-c017-452d-9eb2-c5d2c0ebbca4",
+            "amount": 50,
+            "to_account": "",
+            "from_account": "bob123",
+            "direction": "incoming",
+            "created_at": "2022-02-09T14:15:00.457359Z"
         }
     ]
 }
