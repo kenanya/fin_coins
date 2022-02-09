@@ -11,15 +11,9 @@ import (
 	"github.com/go-kit/kit/log"
 	"github.com/go-kit/log/level"
 	"github.com/kenanya/fin_coins/account"
+	"github.com/kenanya/fin_coins/payment"
 	"github.com/stretchr/testify/assert"
 )
-
-// var u = &r.UserModel{
-// 	ID:    uuid.New().String(),
-// 	Name:  "Momo",
-// 	Email: "momo@mail.com",
-// 	Phone: "08123456789",
-// }
 
 var test1 = account.Account{
 	ID:        "ken99999",
@@ -29,10 +23,20 @@ var test1 = account.Account{
 	UpdatedAt: time.Now(),
 }
 
+var test2 = payment.Payment{
+	ID:            "x1234",
+	AccountID:     "x1234",
+	TransactionID: "x1234",
+	Amount:        100,
+	ToAccount:     "x1234",
+	FromAccount:   "x1234",
+	Direction:     "x1234",
+	CreatedAt:     time.Now(),
+}
+
 var logger log.Logger
 
 func NewMock() (*sql.DB, sqlmock.Sqlmock) {
-	// var logger log.Loggers
 	logger = log.NewLogfmtLogger(log.NewSyncWriter(os.Stderr))
 	logger = log.With(logger, "ts", log.DefaultTimestampUTC)
 
@@ -74,120 +78,36 @@ func TestGetAccountByID(t *testing.T) {
 	assert.NoError(t, err)
 }
 
-// func TestFindByIDError(t *testing.T) {
-// 	db, mock := NewMock()
-// 	repo := &repository{db}
-// 	defer func() {
-// 		repo.Close()
-// 	}()
+func TestGetAllAccount(t *testing.T) {
+	db, mock := NewMock()
+	accountRepo := NewAccountRepository(db, logger)
 
-// 	query := "SELECT id, name, email, phone FROM user WHERE id = \\?"
+	query := "SELECT id, balance, currency, created_at, updated_at FROM account"
 
-// 	rows := sqlmock.NewRows([]string{"id", "name", "email", "phone"})
+	rows := sqlmock.NewRows([]string{"id", "balance", "currency", "created_at", "updated_at"}).
+		AddRow(test1.ID, test1.Balance, test1.Currency, test1.CreatedAt, test1.UpdatedAt)
 
-// 	mock.ExpectQuery(query).WithArgs(u.ID).WillReturnRows(rows)
+	mock.ExpectQuery(regexp.QuoteMeta(query)).WillReturnRows(rows)
 
-// 	user, err := repo.FindByID(u.ID)
-// 	assert.Empty(t, user)
-// 	assert.Error(t, err)
-// }
+	users, err := accountRepo.GetAllAccount()
+	assert.NotEmpty(t, users)
+	assert.NoError(t, err)
+	assert.Len(t, users, 1)
+}
 
-// func TestFind(t *testing.T) {
-// 	db, mock := NewMock()
-// 	repo := &repository{db}
-// 	defer func() {
-// 		repo.Close()
-// 	}()
+func TestGetAllPayment(t *testing.T) {
+	db, mock := NewMock()
+	paymentRepo := NewPaymentRepository(db, logger)
 
-// 	query := "SELECT id, name, email, phone FROM users"
+	query := "SELECT id, account_id, transaction_id, amount, to_account, from_account, direction, created_at FROM payment"
 
-// 	rows := sqlmock.NewRows([]string{"id", "name", "email", "phone"}).
-// 		AddRow(u.ID, u.Name, u.Email, u.Phone)
+	rows := sqlmock.NewRows([]string{"id", "account_id", "transaction_id", "amount", "to_account", "from_account", "direction", "created_at"}).
+		AddRow(test2.ID, test2.AccountID, test2.TransactionID, test2.Amount, test2.ToAccount, test2.FromAccount, test2.Direction, test2.CreatedAt)
 
-// 	mock.ExpectQuery(query).WillReturnRows(rows)
+	mock.ExpectQuery(regexp.QuoteMeta(query)).WillReturnRows(rows)
 
-// 	users, err := repo.Find()
-// 	assert.NotEmpty(t, users)
-// 	assert.NoError(t, err)
-// 	assert.Len(t, users, 1)
-// }
-
-// func TestCreateError(t *testing.T) {
-// 	db, mock := NewMock()
-// 	repo := &repository{db}
-// 	defer func() {
-// 		repo.Close()
-// 	}()
-
-// 	query := "INSERT INTO user \\(id, name, email, phone\\) VALUES \\(\\?, \\?, \\?, \\?\\)"
-
-// 	prep := mock.ExpectPrepare(query)
-// 	prep.ExpectExec().WithArgs(u.ID, u.Name, u.Email, u.Phone).WillReturnResult(sqlmock.NewResult(0, 0))
-
-// 	err := repo.Create(u)
-// 	assert.Error(t, err)
-// }
-
-// func TestUpdate(t *testing.T) {
-// 	db, mock := NewMock()
-// 	repo := &repository{db}
-// 	defer func() {
-// 		repo.Close()
-// 	}()
-
-// 	query := "UPDATE users SET name = \\?, email = \\?, phone = \\? WHERE id = \\?"
-
-// 	prep := mock.ExpectPrepare(query)
-// 	prep.ExpectExec().WithArgs(u.Name, u.Email, u.Phone, u.ID).WillReturnResult(sqlmock.NewResult(0, 1))
-
-// 	err := repo.Update(u)
-// 	assert.NoError(t, err)
-// }
-
-// func TestUpdateErr(t *testing.T) {
-// 	db, mock := NewMock()
-// 	repo := &repository{db}
-// 	defer func() {
-// 		repo.Close()
-// 	}()
-
-// 	query := "UPDATE user SET name = \\?, email = \\?, phone = \\? WHERE id = \\?"
-
-// 	prep := mock.ExpectPrepare(query)
-// 	prep.ExpectExec().WithArgs(u.Name, u.Email, u.Phone, u.ID).WillReturnResult(sqlmock.NewResult(0, 0))
-
-// 	err := repo.Update(u)
-// 	assert.Error(t, err)
-// }
-
-// func TestDelete(t *testing.T) {
-// 	db, mock := NewMock()
-// 	repo := &repository{db}
-// 	defer func() {
-// 		repo.Close()
-// 	}()
-
-// 	query := "DELETE FROM users WHERE id = \\?"
-
-// 	prep := mock.ExpectPrepare(query)
-// 	prep.ExpectExec().WithArgs(u.ID).WillReturnResult(sqlmock.NewResult(0, 1))
-
-// 	err := repo.Delete(u.ID)
-// 	assert.NoError(t, err)
-// }
-
-// func TestDeleteError(t *testing.T) {
-// 	db, mock := NewMock()
-// 	repo := &repository{db}
-// 	defer func() {
-// 		repo.Close()
-// 	}()
-
-// 	query := "DELETE FROM user WHERE id = \\?"
-
-// 	prep := mock.ExpectPrepare(query)
-// 	prep.ExpectExec().WithArgs(u.ID).WillReturnResult(sqlmock.NewResult(0, 0))
-
-// 	err := repo.Delete(u.ID)
-// 	assert.Error(t, err)
-// }
+	users, err := paymentRepo.GetAllPayment()
+	assert.NotEmpty(t, users)
+	assert.NoError(t, err)
+	assert.Len(t, users, 1)
+}

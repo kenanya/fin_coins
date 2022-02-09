@@ -44,15 +44,6 @@ func (repo *allRepository) CreateAccount(accountData account.Account) (account.A
 	return accountRow, nil
 }
 
-func (repo *allRepository) DeleteAccount(id string) error {
-	sql := `DELETE FROM account WHERE id = $1;`
-	_, err := repo.db.Exec(sql, id)
-	if err != nil {
-		return err
-	}
-	return nil
-}
-
 func (repo *allRepository) GetAccountByID(id string) (account.Account, error) {
 	var accountRow = account.Account{}
 	if err := repo.db.QueryRow(
