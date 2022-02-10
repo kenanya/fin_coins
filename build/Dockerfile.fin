@@ -1,5 +1,4 @@
 ###################################################### stage 1
-# FROM amd64/golang:1.13.8-buster AS builder
 FROM amd64/golang:1.17-buster AS builder
 
 COPY main.go /go/src
@@ -36,7 +35,6 @@ RUN apk add tzdata
 ENV TZ Asia/Jakarta
 
 COPY --from=builder /go/src/fin_server /opt/
-# COPY common/configGlobal.yaml /common/configGlobal.yaml
 
 WORKDIR /opt/
 

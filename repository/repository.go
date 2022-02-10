@@ -132,7 +132,6 @@ func (repo *allRepository) SendPayment(accountID string, amount float32, toAccou
 		return err
 	}
 
-	repo.logger.Log("#in begin amount : ", amount)
 	//outgoing
 	var transactionID = uuid.New()
 	sql := `UPDATE account SET balance=balance-$1, updated_at=$2 WHERE id=$3`
@@ -186,10 +185,8 @@ func (repo *allRepository) SendPayment(accountID string, amount float32, toAccou
 		return err
 	}
 
-	time.Sleep(8 * time.Second)
 	// Commit the change if all queries ran successfully
 	err = tx.Commit()
-	repo.logger.Log("#en tx amount : ", amount)
 	if err != nil {
 		level.Error(repo.logger).Log("err", err.Error())
 		return err
