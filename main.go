@@ -27,10 +27,10 @@ import (
 const (
 	defaultPort         = "9696"
 	defaultDbHost       = "localhost"
-	defaultDbPort       = "5432"
+	defaultDbPort       = "5437"
 	defaultDbUser       = "postgres"
 	defaultDbPassword   = "postgres"
-	defaultDbName       = "fin_coins"
+	defaultDbName       = "postgres"
 	defaultDbSchemaName = "wallet"
 )
 
@@ -170,7 +170,6 @@ func accessControl(h http.Handler) http.Handler {
 }
 
 func envString(env, fallback string) string {
-	fmt.Println(env)
 	e := os.Getenv(env)
 	if e == "" {
 		return fallback

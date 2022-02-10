@@ -6,18 +6,23 @@ This is a backend service (API and database) for a generic wallet service. This 
 Tech Stack: golang, go-kit framework, PostgreSQL, docker
 
 ## B. How to set up and start the backend server
-The config file is located at:
-- *fin_coins/common/configGlobal.yaml*
-
-You can change the values according to your configuration. 
-
-
 #### Clone the Project
 ```bash
 git clone https://github.com/kenanya/fin_coins.git
 ```
 
+#### Assign Config Variable
+These are config variables that has been registered. Each of the variable already has a default value, but each value can be replaced according to your configuration. 
+- PORT
+- DB_HOST
+- DB_PORT
+- DB_USER
+- DB_PASSWORD
+- DB_NAME
+- DB_SCHEMA_NAME
+
 #### Build Project
+Change your current directory to the project directory.
 ```bash
 docker-compose -f docker-compose-local.yml build
 ```
@@ -27,16 +32,10 @@ docker-compose -f docker-compose-local.yml build
 docker-compose -f docker-compose-local.yml up
 ```
 
-## C. Integration Test
-Firstly we have to create database that is defined in fin_coins/common/configGlobal.yaml 
-
-These are the steps to run the test:
+## C. Unit Test
 ```bash
-go test -run Test_RaceCondition
-APP_ENV=local go test -run Test_RaceCondition -v
+go test .\repository\ -v
 ```
-
-Those test will do account creation and payment transfer.
 
 
 ## D. The API documentation
