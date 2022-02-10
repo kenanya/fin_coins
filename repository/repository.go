@@ -132,20 +132,11 @@ func (repo *allRepository) SendPayment(accountID string, amount float32, toAccou
 		return err
 	}
 
+	repo.logger.Log("#in begin amount : ", amount)
 	//outgoing
-	var fromAccountRow = account.Account{}
 	var transactionID = uuid.New()
-	if err := tx.QueryRow(
-		"SELECT id, balance, currency, created_at, updated_at FROM account WHERE id = $1", accountID).
-		Scan(&fromAccountRow.ID, &fromAccountRow.Balance, &fromAccountRow.Currency, &fromAccountRow.CreatedAt, &fromAccountRow.UpdatedAt); err != nil {
-		tx.Rollback()
-		level.Error(repo.logger).Log("err", err.Error())
-		return err
-	}
-
-	fromAccountRow.Balance -= amount
-	sql := `UPDATE account SET balance=$1, updated_at=$2 WHERE id=$3`
-	_, err = tx.ExecContext(ctx, sql, fromAccountRow.Balance, time.Now(), accountID)
+	sql := `UPDATE account SET balance=balance-$1, updated_at=$2 WHERE id=$3`
+	_, err = tx.ExecContext(ctx, sql, amount, time.Now(), accountID)
 	if err != nil {
 		tx.Rollback()
 		level.Error(repo.logger).Log("err", err.Error())
@@ -170,18 +161,8 @@ func (repo *allRepository) SendPayment(accountID string, amount float32, toAccou
 	}
 
 	//incoming
-	var toAccountRow = account.Account{}
-	if err := tx.QueryRow(
-		"SELECT id, balance, currency, created_at, updated_at FROM account WHERE id = $1", toAccount).
-		Scan(&toAccountRow.ID, &toAccountRow.Balance, &toAccountRow.Currency, &toAccountRow.CreatedAt, &toAccountRow.UpdatedAt); err != nil {
-		tx.Rollback()
-		level.Error(repo.logger).Log("err", err.Error())
-		return err
-	}
-
-	toAccountRow.Balance += amount
-	sql = `UPDATE account SET balance=$1, updated_at=$2 WHERE id=$3`
-	_, err = tx.ExecContext(ctx, sql, toAccountRow.Balance, time.Now(), toAccount)
+	sql = `UPDATE account SET balance=balance+$1, updated_at=$2 WHERE id=$3`
+	_, err = tx.ExecContext(ctx, sql, amount, time.Now(), toAccount)
 	if err != nil {
 		tx.Rollback()
 		level.Error(repo.logger).Log("err", err.Error())
@@ -205,9 +186,10 @@ func (repo *allRepository) SendPayment(accountID string, amount float32, toAccou
 		return err
 	}
 
-	// time.Sleep(8 * time.Second)
+	time.Sleep(8 * time.Second)
 	// Commit the change if all queries ran successfully
 	err = tx.Commit()
+	repo.logger.Log("#en tx amount : ", amount)
 	if err != nil {
 		level.Error(repo.logger).Log("err", err.Error())
 		return err

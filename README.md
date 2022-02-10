@@ -43,7 +43,7 @@ Below are the sample requests and expected responses for each API:
 
 ### D.1. Create Account
 **Purpose:** Creating account
-**Endpoint:** *{PREFIX_URL}/account/v1/account*
+**Endpoint:** *{BASE_URL}/account/v1/account*
 | Param | Value |
 | ------ | ------ |
 | id | unique id for account  
@@ -52,7 +52,7 @@ Below are the sample requests and expected responses for each API:
 
 #### Positive Scenario 1 - Request
 ```
-curl --location --request POST '{PREFIX_URL}/account/v1/account' \
+curl --location --request POST '{BASE_URL}/account/v1/account' \
 --header 'Content-Type: application/json' \
 --data-raw '{
    "id": "panda101",
@@ -79,14 +79,14 @@ Content-Type: "application/json"
 
 ### D.2. Get All Account
 **Purpose:** Listing all available accounts
-**Endpoint:** *{PREFIX_URL}/account/v1/account*
+**Endpoint:** *{BASE_URL}/account/v1/account*
 | Param | Value |
 | ------ | ------ |
 |  |  |
 
 #### Positive Scenario 1 - Request
 ```
-curl --location --request GET '{PREFIX_URL}/account/v1/account' \
+curl --location --request GET '{BASE_URL}/account/v1/account' \
 --data-raw ''
 ```
 
@@ -117,14 +117,14 @@ Content-Type: "application/json"
 
 ### D.3. Get Account by ID
 **Purpose:** Getting account by account id
-**Endpoint:** *{PREFIX_URL}/account/v1/account/{id}*
+**Endpoint:** *{BASE_URL}/account/v1/account/{id}*
 | Param | Value |
 | ------ | ------ |
 | id | account id  |
 
 #### Positive Scenario 1 - Request
 ```
-curl --location --request GET '{PREFIX_URL}/account/v1/account/panda101' \
+curl --location --request GET '{BASE_URL}/account/v1/account/panda101' \
 --data-raw ''
 ```
 
@@ -146,7 +146,7 @@ Content-Type: "application/json"
 
 ### D.4. Send Payment
 **Purpose:** Sending payment from one account to another account that registered in this wallet system
-**Endpoint:** *{PREFIX_URL}/payment/v1/payment*
+**Endpoint:** *{BASE_URL}/payment/v1/payment*
 | Param | Value |
 | ------ | ------ |
 | account_id | account id of the sender  |
@@ -155,7 +155,7 @@ Content-Type: "application/json"
 
 #### Positive Scenario 1 - Request
 ```
-curl --location --request POST '{PREFIX_URL}/payment/v1/payment' \
+curl --location --request POST '{BASE_URL}/payment/v1/payment' \
 --header 'Content-Type: application/json' \
 --data-raw '{
    "account_id": "bob123",
@@ -173,14 +173,14 @@ Content-Type: "application/json"
 
 ### D.5. Get All Payment
 **Purpose:** Listing all payments
-**Endpoint:** *{PREFIX_URL}/account/v1/account*
+**Endpoint:** *{BASE_URL}/account/v1/account*
 | Param | Value |
 | ------ | ------ |
 |  |  |
 
 #### Positive Scenario 1 - Request
 ```
-curl --location --request GET '{PREFIX_URL}/payment/v1/payment' \
+curl --location --request GET '{BASE_URL}/payment/v1/payment' \
 --data-raw ''
 ```
 
