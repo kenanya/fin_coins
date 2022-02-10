@@ -7,7 +7,7 @@ import (
 	"net/http"
 	"os"
 	"os/signal"
-	"strings"
+	"strconv"
 	"syscall"
 
 	"github.com/kenanya/fin_coins/account"
@@ -25,19 +25,45 @@ import (
 )
 
 const (
-	defaultPort = "9696"
-	dbHost      = "localhost"
-	dbPort      = 5432
-	dbUser      = "postgres"
-	dbPassword  = "postgres"
-	dbName      = "fin_coins"
-	schemaName  = "wallet"
+	defaultPort         = "9696"
+	defaultDbHost       = "localhost"
+	defaultDbPort       = "5432"
+	defaultDbUser       = "postgres"
+	defaultDbPassword   = "postgres"
+	defaultDbName       = "fin_coins"
+	defaultDbSchemaName = "wallet"
 )
+
+func OpenDB(logger log.Logger, dbHost, dbPort, dbUser, dbPassword, dbName, dbSchemaName string) (*sql.DB, error) {
+
+	intPort, err := strconv.Atoi(dbPort)
+	if err != nil {
+		return nil, err
+	}
+	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable search_path=%s",
+		dbHost, intPort, dbUser, dbPassword, dbName, dbSchemaName)
+
+	fmt.Println(psqlInfo)
+	var db *sql.DB
+	db, err = sql.Open("postgres", psqlInfo)
+	if err != nil {
+		return nil, err
+	}
+
+	return db, err
+}
 
 func main() {
 	var (
 		addr     = envString("PORT", defaultPort)
 		httpAddr = flag.String("http.addr", ":"+addr, "HTTP listen address")
+
+		dbHost       = envString("DB_HOST", defaultDbHost)
+		dbPort       = envString("DB_PORT", defaultDbPort)
+		dbUser       = envString("DB_USER", defaultDbUser)
+		dbPassword   = envString("DB_PASSWORD", defaultDbPassword)
+		dbName       = envString("DB_NAME", defaultDbName)
+		dbSchemaName = envString("DB_SCHEMA_NAME", defaultDbSchemaName)
 	)
 
 	flag.Parse()
@@ -46,26 +72,24 @@ func main() {
 	logger = log.NewLogfmtLogger(log.NewSyncWriter(os.Stderr))
 	logger = log.With(logger, "ts", log.DefaultTimestampUTC)
 
-	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable search_path=%s",
-		dbHost, dbPort, dbUser, dbPassword, dbName, schemaName)
-	var db *sql.DB
-	{
-		var err error
-		db, err = sql.Open("postgres", psqlInfo)
-		if err != nil {
-			level.Error(logger).Log("exit", err)
-			os.Exit(-1)
-		}
-		defer db.Close()
+	db, err := OpenDB(logger, dbHost, dbPort, dbUser, dbPassword, dbName, dbSchemaName)
+	if err != nil {
+		level.Error(logger).Log("failed initialize postgres connection", err)
+		os.Exit(-1)
 	}
+	defer db.Close()
+
+	err = db.Ping()
+	if err != nil {
+		level.Error(logger).Log("failed connect to postgres", err)
+		os.Exit(-1)
+	}
+	logger.Log("Successfully connected to DB!")
 
 	var (
 		accountRepo = repository.NewAccountRepository(db, logger)
 		paymentRepo = repository.NewPaymentRepository(db, logger)
 	)
-
-	// Facilitate testing by adding some account
-	storeTestData(accountRepo)
 
 	fieldKeys := []string{"method"}
 
@@ -146,39 +170,10 @@ func accessControl(h http.Handler) http.Handler {
 }
 
 func envString(env, fallback string) string {
+	fmt.Println(env)
 	e := os.Getenv(env)
 	if e == "" {
 		return fallback
 	}
 	return e
-}
-
-func storeTestData(r account.Repository) {
-	errDuplicateKey := "pq: duplicate key value violates unique constraint"
-	test1 := account.Account{
-		ID:       "jack888",
-		Balance:  4000,
-		Currency: "USD",
-	}
-	if _, err := r.CreateAccount(test1); err != nil && !strings.Contains(err.Error(), errDuplicateKey) {
-		panic(err)
-	}
-
-	test2 := account.Account{
-		ID:       "irin977",
-		Balance:  8000,
-		Currency: "USD",
-	}
-	if _, err := r.CreateAccount(test2); err != nil && !strings.Contains(err.Error(), errDuplicateKey) {
-		panic(err)
-	}
-
-	test3 := account.Account{
-		ID:       "mike2167",
-		Balance:  20000,
-		Currency: "IDR",
-	}
-	if _, err := r.CreateAccount(test3); err != nil && !strings.Contains(err.Error(), errDuplicateKey) {
-		panic(err)
-	}
 }

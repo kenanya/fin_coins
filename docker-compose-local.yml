@@ -1,0 +1,35 @@
+# docker-compose.yml
+version: "3.5"
+
+services:
+  fin_coins:
+    restart: always
+    build:
+      context: .
+      dockerfile: build/Dockerfile.fin
+    depends_on:
+      - datastore
+    ports:
+      - 9702:9702
+    environment:
+      TZ: "Asia/Jakarta"
+      PORT: "9702"
+      DB_HOST: "postgres-docker"
+      DB_PORT: "5432"
+      DB_USER: "postgres"
+      DB_PASSWORD: "postgres"
+      DB_NAME: "postgres"
+      DB_SCHEMA_NAME: "wallet"
+
+  datastore:
+    image: postgres:14.1-alpine
+    container_name: postgres-docker
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+    ports:
+      - '5437:5432'
+    volumes:
+      - ./sql/sqlfile.sql:/docker-entrypoint-initdb.d/sqlfile.sql
+      - ./pgdata:/var/lib/postgresql/data

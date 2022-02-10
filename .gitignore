@@ -123,6 +123,7 @@ fabric.properties
 
 .DS_Store
 
-meal_delivery_be
 data/
 ./data/
+pgdata/
+./pgdata/

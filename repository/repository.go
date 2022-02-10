@@ -205,7 +205,7 @@ func (repo *allRepository) SendPayment(accountID string, amount float32, toAccou
 		return err
 	}
 
-	time.Sleep(8 * time.Second)
+	// time.Sleep(8 * time.Second)
 	// Commit the change if all queries ran successfully
 	err = tx.Commit()
 	if err != nil {

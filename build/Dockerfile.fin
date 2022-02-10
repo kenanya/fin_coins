@@ -1,0 +1,44 @@
+###################################################### stage 1
+# FROM amd64/golang:1.13.8-buster AS builder
+FROM amd64/golang:1.17-buster AS builder
+
+COPY main.go /go/src
+COPY go.mod /go/src
+COPY go.sum /go/src
+COPY common /go/src/common/
+COPY account /go/src/account/
+COPY payment /go/src/payment/
+COPY lib /go/src/lib/
+COPY repository /go/src/repository/
+
+RUN set -eux; export PATH="/usr/local/go/bin:$PATH"; \
+    go version; export GO111MODULE=on; \
+    cd /go/src; \
+    go mod vendor; \
+    GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -a -ldflags '-extldflags "-static"'  -o fin_server main.go; \    
+    rm /go/src/common -Rf; \    
+    rm /go/src/account -Rf; \
+    rm /go/src/payment -Rf; \
+    rm /go/src/lib -Rf; \
+    rm /go/src/repository -Rf; 
+    
+ENV GOPATH /go
+ENV PATH $GOPATH/bin:/usr/local/go/bin:$PATH
+
+WORKDIR $GOPATH
+
+
+###################################################### stage 2
+FROM alpine:3.11.3
+
+# RUN apk --no-cache add ca-certificates
+RUN apk add tzdata
+ENV TZ Asia/Jakarta
+
+COPY --from=builder /go/src/fin_server /opt/
+# COPY common/configGlobal.yaml /common/configGlobal.yaml
+
+WORKDIR /opt/
+
+EXPOSE 9702
+CMD ["/opt/fin_server"]
