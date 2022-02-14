@@ -50,6 +50,9 @@ func (s *service) GetAccountByID(id string) (Account, error) {
 	}
 	account, err := s.accountRepo.GetAccountByID(id)
 	if err != nil {
+		if err.Error() == "sql: no rows in result set" {
+			return account, common.ErrUnknownAccount
+		}
 		return account, err
 	}
 

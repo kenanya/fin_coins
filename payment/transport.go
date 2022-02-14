@@ -14,20 +14,20 @@ import (
 )
 
 // MakeHandler returns a handler for the payment service.
-func MakeHandler(ac Service, logger kitlog.Logger) http.Handler {
+func MakeHandler(ps Service, logger kitlog.Logger) http.Handler {
 	opts := []kithttp.ServerOption{
 		kithttp.ServerErrorHandler(transport.NewLogErrorHandler(logger)),
 		kithttp.ServerErrorEncoder(encodeError),
 	}
 
 	sendPaymentHandler := kithttp.NewServer(
-		makeSendPaymentEndpoint(ac),
+		makeSendPaymentEndpoint(ps),
 		decodeSendPaymentRequest,
 		encodeResponse,
 		opts...,
 	)
 	getAllPaymentHandler := kithttp.NewServer(
-		makeGetAllPaymentEndpoint(ac),
+		makeGetAllPaymentEndpoint(ps),
 		decodeGetAllPaymentRequest,
 		encodeResponse,
 		opts...,
@@ -80,7 +80,7 @@ type errorer interface {
 func encodeError(_ context.Context, err error, w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	switch err {
-	case common.ErrUnknown:
+	case common.ErrUnknownPayment:
 		w.WriteHeader(http.StatusNotFound)
 	case common.ErrInvalidArgument:
 		w.WriteHeader(http.StatusBadRequest)

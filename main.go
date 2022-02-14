@@ -43,7 +43,7 @@ func OpenDB(logger log.Logger, dbHost, dbPort, dbUser, dbPassword, dbName, dbSch
 	psqlInfo := fmt.Sprintf("host=%s port=%d user=%s password=%s dbname=%s sslmode=disable search_path=%s",
 		dbHost, intPort, dbUser, dbPassword, dbName, dbSchemaName)
 
-	fmt.Println(psqlInfo)
+	// fmt.Println(psqlInfo)
 	var db *sql.DB
 	db, err = sql.Open("postgres", psqlInfo)
 	if err != nil {

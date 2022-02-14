@@ -7,9 +7,9 @@ import (
 )
 
 type sendPaymentRequest struct {
-	AccountID string
-	Amount    float32
-	ToAccount string
+	AccountID string  `json:"account_id"`
+	Amount    float32 `json:"amount"`
+	ToAccount string  `json:"to_account"`
 }
 
 type sendPaymentResponse struct {

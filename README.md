@@ -32,11 +32,24 @@ docker-compose -f docker-compose-local.yml build
 docker-compose -f docker-compose-local.yml up
 ```
 
-## C. Unit Test
+## C. Test
+### C.1 Unit Test
+#### C.1.1 Repository
 ```bash
 go test .\repository\ -v
 ```
 
+#### C.1.2 Transport
+```bash
+go test .\account\ -v
+go test .\payment\ -v
+```
+
+### C.2 Integration Test
+```bash
+go test -v
+```
+Ensure to run the previous step (**B. How to set up and start the backend server**) before run this integration test.
 
 ## D. The API documentation
 Below are the sample requests and expected responses for each API:

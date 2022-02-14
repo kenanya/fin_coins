@@ -11,7 +11,8 @@ const (
 var (
 	ErrInvalidArgument      = errors.New("invalid argument")
 	ErrBadRoute             = errors.New("bad route")
-	ErrUnknown              = errors.New("unknown account")
+	ErrUnknownAccount       = errors.New("unknown account")
+	ErrUnknownPayment       = errors.New("unknown account")
 	ErrAccountNotRegistered = errors.New("sender or receiver not exists")
 	ErrDifferentCurrency    = errors.New("different currency between sender and receiver")
 	ErrInsufficientBalance  = errors.New("insufficient balance")

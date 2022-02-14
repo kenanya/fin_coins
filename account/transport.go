@@ -97,7 +97,7 @@ type errorer interface {
 func encodeError(_ context.Context, err error, w http.ResponseWriter) {
 	w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	switch err {
-	case common.ErrUnknown:
+	case common.ErrUnknownAccount:
 		w.WriteHeader(http.StatusNotFound)
 	case common.ErrInvalidArgument:
 		w.WriteHeader(http.StatusBadRequest)
